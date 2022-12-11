@@ -28,17 +28,28 @@ let baseMaps = {
   "Satellite": satelliteStreets
 };
 
+// Deliverable 1
 // 1. Add a 2nd layer group for the tectonic plate data.
 let allEarthquakes = new L.LayerGroup();
 
 let tectonicPlates = new L.LayerGroup();
 
+// Deliverable 2
+// 1. Add a 3rd layer group for the major earthquake data.
+let majorEarthquakes = new L.LayerGroup();
+
+
+// Deliverable 1
 // 2. Add a reference to the tectonic plates group to the overlays object.
 let overlays = {
 
   "Earthquakes": allEarthquakes,
 
-  "Tectonic Plates": tectonicPlates
+  "Tectonic Plates": tectonicPlates,
+
+// Deliverable 2
+// 2. Add a reference to the major earthquake group to the overlays object.
+"Major Earthquakes": majorEarthquakes
 
 };
 
@@ -145,7 +156,8 @@ legend.onAdd = function() {
   legend.addTo(map);
 });
 
-    // Use d3.json to make a call to get our Tectonic Plate geoJSON data.
+// Deliverable 1
+    // 3. Use d3.json to make a call to get our Tectonic Plate geoJSON data.
     let tectonicStyle = {
 
       color: '#CC5500'
@@ -159,4 +171,70 @@ legend.onAdd = function() {
       }).addTo(tectonicPlates);
       tectonicPlates.addTo(map)
   });
-  tectonicPlates.addTo(map);
+    tectonicPlates.addTo(map);
+
+// Deliverable 2 for remainder of code:
+
+// Deliverable 2, step 3
+d3.json("https://earthquake.usgs.gov/earthquakes/feed/v1.0/summary/4.5_week.geojson").then(function(data) {
+  
+  // Deliberable 2, step 4
+  // This function returns the style data for each of the earthquakes we plot on
+  // the map. We pass the magnitude of the earthquake into two separate functions
+  // to calculate the color and radius.
+  function majorQuakeStyle(feature) {
+    return {
+      opacity: 1,
+      fillOpacity: 1,
+      fillColor: majorQuakeColor(feature.properties.mag),
+      color: "#000000",
+      radius: majorQuakeRadius(feature.properties.mag),
+      stroke: true,
+      weight: 0.5
+    };
+  }
+
+  // Deliverable 2, step 5
+  // This function determines the color of the marker based on the magnitude of the earthquake.
+  function majorQuakeColor(magnitude) {
+    if (magnitude > 6) {
+      return "#00FF00";
+    }
+    if (magnitude > 5) {
+      return "#FF0000";
+    }
+    return "#98ee00";
+  }
+
+  // Deliverable 2, step 6
+  // This function determines the radius of the earthquake marker based on its magnitude.
+  // Earthquakes with a magnitude of 0 were being plotted with the wrong radius.
+  function majorQuakeRadius(magnitude) {
+    if (magnitude === 0) {
+      return 1;
+    }
+    return magnitude * 4;
+  }
+
+
+  // Deliverable 2, step 7
+  // Creating a GeoJSON layer with the retrieved data.
+  L.geoJson(data, {
+    	// We turn each feature into a circleMarker on the map.
+    	pointToLayer: function(feature, latlng) {
+      		console.log(data);
+      		return L.circleMarker(latlng);
+        },
+      // We set the style for each circleMarker using our styleInfo function.
+    style: majorQuakeStyle,
+     // We create a popup for each circleMarker to display the magnitude and location of the earthquake
+     //  after the marker has been created and styled.
+     onEachFeature: function(feature, layer) {
+      layer.bindPopup("Magnitude: " + feature.properties.mag + "<br>Location: " + feature.properties.place);
+    }
+  }).addTo(majorEarthquakes);
+
+  // Deliverable 2, step 8
+  // Then we add the earthquake layer to our map.
+  majorEarthquakes.addTo(map);
+});
