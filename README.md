@@ -1,4 +1,5 @@
 # Mapping_Earthquakes
+Link to GitHub Page: https://midwestbotanist.github.io/Mapping_Earthquake.github.io/
 
 ## Background/Purpose:
 This project has been conducted to provide a visual reference for the differing earthquake magnitudes worldwide that has occurred over the past 7 days. The geographical coordinates of the earthquakes along with their resulting earthquake magnitudes were obtained from the USGS website.
